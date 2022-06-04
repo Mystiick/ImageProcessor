@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using ImageProcessor.Services;
 using ImageProcessor.Models;
@@ -27,16 +28,28 @@ public class ImageProcessor
             {
                 // Add services
                 services.AddScoped<ImageProcessorService>();
-                services.AddScoped<ImageClient>();
+                services.AddScoped<FileClient>();
 
                 // Add IOptions
-                services.Configure<FilePaths>(
-                    context.Configuration.GetSection(FilePaths.ConfigName)
+                services.Configure<ProcessorConfig>(
+                    context.Configuration.GetSection(ProcessorConfig.ConfigName)
                 );
             })
-            .ConfigureAppConfiguration(x =>
+            .ConfigureAppConfiguration(config =>
             {
-                x.AddJsonFile("appsettings.json", optional: false);
+                config.AddJsonFile("appsettings.json", optional: false);
+#if DEBUG
+                config.AddJsonFile("appsettings.dev.json", optional: true);
+#endif
+            })
+            .ConfigureLogging(logging =>
+            {
+                logging.AddSimpleConsole(x =>
+                {
+                    x.SingleLine = true;
+                    x.TimestampFormat = "yyyy-MM-dd hh:mm:ss tt ";
+                    x.IncludeScopes = true;
+                });
             })
         ;
 
