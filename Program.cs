@@ -29,6 +29,7 @@ public class ImageProcessor
                 // Add services
                 services.AddScoped<ImageProcessorService>();
                 services.AddScoped<FileClient>();
+                services.AddScoped<DataClient>();
 
                 // Add IOptions
                 services.Configure<ProcessorConfig>(
