@@ -5,14 +5,14 @@ public struct ImageData
     public string Image { get; init; }
     public string Thumbnail { get; init; }
     public DateTime CreatedDate { get; init; }
-    public TagData Tags { get; init; }
+    public TagData MetaData { get; init; }
 
     public ImageData()
     {
         Image = "";
         Thumbnail = "";
         CreatedDate = DateTime.Now;
-        Tags = new TagData();
+        MetaData = new TagData();
     }
 
     public ImageData(ImageData copyFrom)
@@ -20,6 +20,6 @@ public struct ImageData
         Image = copyFrom.Image;
         Thumbnail = copyFrom.Thumbnail;
         CreatedDate = copyFrom.CreatedDate;
-        Tags = copyFrom.Tags;
+        MetaData = copyFrom.MetaData;
     }
 }

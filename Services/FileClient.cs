@@ -11,7 +11,6 @@ namespace ImageProcessor.Services;
 /// <summary>Class responsible for the folder and file manipulation</summary>
 public class FileClient
 {
-
     private readonly ProcessorConfig _config;
     private readonly ILogger<FileClient> _logger;
 
@@ -102,7 +101,7 @@ public class FileClient
             Image = file,
             Thumbnail = thumbnail,
             CreatedDate = fi.CreationTime,
-            Tags = tags
+            MetaData = tags
         };
     }
 

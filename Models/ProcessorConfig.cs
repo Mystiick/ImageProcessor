@@ -11,4 +11,5 @@ public class ProcessorConfig
     public string AutoTagFileName { get; set; } = string.Empty;
     public bool DeleteAutoTagFile { get; set; } = false;
     public bool OverwriteFilesInArchive { get; set; } = false;
+    public string DatabaseConnectionString { get; set; } = "";
 }

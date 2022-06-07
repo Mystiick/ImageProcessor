@@ -13,6 +13,7 @@ public class ImageProcessorService
     private readonly FileClient _fileClient;
     private readonly DataClient _dataClient;
 
+    /// <summary>DI Constructor</summary>
     public ImageProcessorService(ILogger<ImageProcessorService> logger, IOptions<ProcessorConfig> options, FileClient fileClient, DataClient dataClient)
     {
         _fileClient = fileClient;
@@ -47,7 +48,7 @@ public class ImageProcessorService
             List<(ImageData source, ImageData destination)> archiveData = DetermineDestinations(imageSource);
 
             // 1 minute timeout
-            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 1, 0)))
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 1, 0), TransactionScopeAsyncFlowOption.Enabled))
             {
                 // Save data to DB
                 await _dataClient.SaveImageData(archiveData.Select(x => x.destination).ToList());
