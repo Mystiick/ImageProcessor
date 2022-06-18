@@ -66,12 +66,7 @@ public class ImageProcessorService
             await ProcessDirectory(sub);
         }
 
-        // Delete the folder if it's empty. This will throw an exception if the directory isn't actually empty, but that shouldn't happen
-        if (directory != _config.SourceFolder && !Directory.GetFileSystemEntries(directory).Any())
-        {
-            _logger.LogInformation($"Deleting source folder {directory}");
-            Directory.Delete(directory);
-        }
+        _fileClient.DeleteDirectory(directory);
     }
 
     /// <summary>Returns a grouping of source and destination images, the destination images have their paths updated to the archive folder</summary>

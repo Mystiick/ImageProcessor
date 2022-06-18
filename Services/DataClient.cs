@@ -28,13 +28,14 @@ public class DataClient
         // TODO: Batch insert these instead of one at a time
         foreach (ImageData img in images)
         {
-            var command = new MySqlCommand("insert into Image (GUID, ImagePath, ThumbnailPath, Category, SubCategory) values (@GUID, @Image, @Thumbnail, @Category, @SubCategory);", connection);
+            var command = new MySqlCommand("insert into Image (GUID, ImagePath, ThumbnailPath, Category, SubCategory, CreatedDate) values (@GUID, @Image, @Thumbnail, @Category, @SubCategory, @Created);", connection);
 
             command.Parameters.AddWithValue("@GUID", Guid.NewGuid().ToString());
             command.Parameters.AddWithValue("@Image", img.Image);
             command.Parameters.AddWithValue("@Thumbnail", img.Thumbnail);
             command.Parameters.AddWithValue("@Category", img.MetaData.Category);
             command.Parameters.AddWithValue("@Subcategory", img.MetaData.SubCategory);
+            command.Parameters.AddWithValue("@Created", img.CreatedDate);
 
             await command.PrepareAsync();
             await command.ExecuteNonQueryAsync();

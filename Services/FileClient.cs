@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 using ImageProcessor.Models;
 
@@ -29,14 +30,14 @@ public class FileClient
             // Only return files with the extension specified in appsettings. 
             // Exclude any files with "_thumb." in their name to prevent processing thumbnails
             var fi = new FileInfo(x);
-            return _config.ImageExtensions.Contains(fi.Extension) && !fi.Name.Contains("_thumb.");
+            return _config.ImageExtensions.Contains(fi.Extension.ToLower()) && !fi.Name.Contains("_thumb.");
         });
     }
 
     /// <summary>Returns an enumerable of subfolders that contain images</summary>
     public IEnumerable<string> GetSubDirectories(string directory)
     {
-        return Directory.EnumerateDirectories(directory).Where(x => this.GetImages(x).Any());
+        return Directory.EnumerateDirectories(directory);
     }
 
     /// <summary>
@@ -62,7 +63,7 @@ public class FileClient
             {
                 Category = tags.ElementAtOrDefault(0) ?? "",
                 SubCategory = tags.ElementAtOrDefault(1) ?? "",
-                Tags = (tags.ElementAtOrDefault(2) ?? "").Split(",").Select(x => x.Trim()).ToArray(),
+                Tags = (tags.ElementAtOrDefault(2) ?? "").Split(",").Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray(),
             };
         }
         else
@@ -85,6 +86,12 @@ public class FileClient
         // Load the image
         var fi = new FileInfo(file);
         var img = await Image.LoadAsync(file);
+        // img.Metadata.ExifProfile.GetValue<string>(ExifTag.Model);
+        // img.Metadata.ExifProfile.GetValue<ushort>(ExifTag.Flash); // need to map
+        // img.Metadata.ExifProfile.GetValue<uint>(ExifTag.RecommendedExposureIndex); // ISO?
+        // img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.ExposureTime); // 1/160
+        // img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FNumber); //7.1
+        // img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FocalLength); //18mm
 
         // Name the thumbnail
         string thumbnail = fi.FullName.Substring(0, fi.FullName.Length - fi.Extension.Length) + "_thumb" + fi.Extension;
@@ -140,6 +147,13 @@ public class FileClient
                     Path.Combine(sourceDir, _config.AutoTagFileName)
                 );
             }
+            else
+            {
+                File.Move(
+                    Path.Combine(sourceDir, _config.AutoTagFileName),
+                     Path.Combine(archiveDir, _config.AutoTagFileName + DateTime.Now.ToString("yyyyMMdd_HHmmss"))
+                );
+            }
         }
         else
         {
@@ -151,6 +165,17 @@ public class FileClient
                                     );
 
             throw new FileNotFoundException($"The following files could not be found: \r\n{string.Join("\r\n", missingFiles)}");
+        }
+    }
+
+    /// <summary>Deletes the specified folder if it's empty</summary>
+    public void DeleteDirectory(string directory)
+    {
+        // Delete the folder if it's empty. This will throw an exception if the directory isn't actually empty, but that shouldn't happen
+        if (directory != _config.SourceFolder && !Directory.GetFileSystemEntries(directory).Any())
+        {
+            _logger.LogInformation($"Deleting source folder {directory}");
+            Directory.Delete(directory);
         }
     }
 }
