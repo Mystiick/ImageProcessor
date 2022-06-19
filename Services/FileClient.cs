@@ -86,12 +86,6 @@ public class FileClient
         // Load the image
         var fi = new FileInfo(file);
         var img = await Image.LoadAsync(file);
-        // img.Metadata.ExifProfile.GetValue<string>(ExifTag.Model);
-        // img.Metadata.ExifProfile.GetValue<ushort>(ExifTag.Flash); // need to map
-        // img.Metadata.ExifProfile.GetValue<uint>(ExifTag.RecommendedExposureIndex); // ISO?
-        // img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.ExposureTime); // 1/160
-        // img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FNumber); //7.1
-        // img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FocalLength); //18mm
 
         // Name the thumbnail
         string thumbnail = fi.FullName.Substring(0, fi.FullName.Length - fi.Extension.Length) + "_thumb" + fi.Extension;
@@ -108,7 +102,16 @@ public class FileClient
             Image = file,
             Thumbnail = thumbnail,
             CreatedDate = fi.CreationTime,
-            MetaData = tags
+            TagData = tags,
+            Camera = new CameraSettings()
+            {
+                Model = img.Metadata.ExifProfile.GetValue<string>(ExifTag.Model).Value,
+                Flash = img.Metadata.ExifProfile.GetValue<ushort>(ExifTag.Flash).Value,
+                ISO = img.Metadata.ExifProfile.GetValue<uint>(ExifTag.RecommendedExposureIndex).Value,
+                ShutterSpeed = img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.ExposureTime).Value.ToString(),
+                Aperature = img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FNumber).Value.ToString(),
+                FocalLength = img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FocalLength).Value.ToString()
+            }
         };
     }
 
@@ -141,18 +144,21 @@ public class FileClient
             }
 
             // And now delete the /tags file once the copy has been successful
-            if (_config.DeleteAutoTagFile)
+            if (File.Exists(Path.Combine(sourceDir, _config.AutoTagFileName)))
             {
-                File.Delete(
-                    Path.Combine(sourceDir, _config.AutoTagFileName)
-                );
-            }
-            else
-            {
-                File.Move(
-                    Path.Combine(sourceDir, _config.AutoTagFileName),
-                     Path.Combine(archiveDir, _config.AutoTagFileName + DateTime.Now.ToString("yyyyMMdd_HHmmss"))
-                );
+                if (_config.DeleteAutoTagFile)
+                {
+                    File.Delete(
+                        Path.Combine(sourceDir, _config.AutoTagFileName)
+                    );
+                }
+                else
+                {
+                    File.Move(
+                        Path.Combine(sourceDir, _config.AutoTagFileName),
+                         Path.Combine(archiveDir, _config.AutoTagFileName + DateTime.Now.ToString("yyyyMMdd_HHmmss"))
+                    );
+                }
             }
         }
         else
