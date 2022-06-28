@@ -44,11 +44,12 @@ public class DataClient
 
     private async Task<int> InsertImage(ImageData img, MySqlConnection connection)
     {
-        var command = new MySqlCommand("insert into Image (GUID, ImagePath, ThumbnailPath, Category, SubCategory, Created) values (@GUID, @Image, @Thumbnail, @Category, @SubCategory, @Created);", connection);
+        var command = new MySqlCommand("insert into Image (GUID, ImagePath, ThumbnailPath, PreviewPath, Category, SubCategory, Created) values (@GUID, @Image, @Thumbnail, @Preview, @Category, @SubCategory, @Created);", connection);
 
-        command.Parameters.AddWithValue("@GUID", Guid.NewGuid().ToString());
+        command.Parameters.AddWithValue("@GUID", img.GUID);
         command.Parameters.AddWithValue("@Image", img.Image);
         command.Parameters.AddWithValue("@Thumbnail", img.Thumbnail);
+        command.Parameters.AddWithValue("@Preview", img.Preview);
         command.Parameters.AddWithValue("@Category", img.TagData.Category);
         command.Parameters.AddWithValue("@Subcategory", img.TagData.SubCategory);
         command.Parameters.AddWithValue("@Created", img.CreatedDate);
