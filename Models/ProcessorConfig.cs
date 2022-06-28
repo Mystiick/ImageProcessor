@@ -7,6 +7,7 @@ public class ProcessorConfig
     public string ArchiveFolder { get; set; } = string.Empty;
     public string FailedFolder { get; set; } = string.Empty;
     public string[] ImageExtensions { get; set; } = new string[0];
+    public float PreviewMaxSize { get; set; } = float.NaN;
     public float ThumbnailMaxSize { get; set; } = float.NaN;
     public string AutoTagFileName { get; set; } = string.Empty;
     public bool DeleteAutoTagFile { get; set; } = false;
