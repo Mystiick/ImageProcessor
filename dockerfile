@@ -14,10 +14,7 @@ RUN dotnet publish -c release -o /app/
 FROM base as final
 
 WORKDIR /app
-RUN groupadd -r dotnet && useradd -r -g dotnet dotnet
-RUN chmod -R a+rwx /app/
 
 COPY --from=build /app .
 
-USER dotnet
 ENTRYPOINT [ "dotnet", "ImageProcessor.dll" ]

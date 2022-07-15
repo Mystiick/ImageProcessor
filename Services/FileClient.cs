@@ -116,7 +116,7 @@ public class FileClient
             Extension = fi.Extension,
             CreatedDate = DateTime.ParseExact(img.Metadata.ExifProfile?.GetValue<string>(ExifTag.DateTime).ToString() ?? DateTime.Now.ToString(dateFormat), dateFormat, null),
             TagData = tags,
-            Camera = new CameraSettings()
+            Camera = new CameraSettings(img.Metadata.ExifProfile)
         };
     }
 
