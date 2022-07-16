@@ -84,6 +84,7 @@ public class FileClient
     public async Task<ImageData> CreateThumbnail(string file, TagData tags)
     {
         // Load the image
+        const string dateFormat = "yyyy:MM:dd HH:mm:ss";
         var fi = new FileInfo(file);
         var img = await Image.LoadAsync(file);
         var id = Guid.NewGuid().ToString();
@@ -113,17 +114,9 @@ public class FileClient
             Thumbnail = thumbnail,
             Preview = preview,
             Extension = fi.Extension,
-            CreatedDate = DateTime.ParseExact(img.Metadata.ExifProfile.GetValue<string>(ExifTag.DateTime).ToString() ?? "", "yyyy:MM:dd HH:mm:ss", null),
+            CreatedDate = DateTime.ParseExact(img.Metadata.ExifProfile?.GetValue<string>(ExifTag.DateTime).ToString() ?? DateTime.Now.ToString(dateFormat), dateFormat, null),
             TagData = tags,
-            Camera = new CameraSettings()
-            {
-                Model = img.Metadata.ExifProfile.GetValue<string>(ExifTag.Model).Value,
-                Flash = img.Metadata.ExifProfile.GetValue<ushort>(ExifTag.Flash).Value,
-                ISO = img.Metadata.ExifProfile.GetValue<uint>(ExifTag.RecommendedExposureIndex).Value,
-                ShutterSpeed = SimplifyRational(img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.ExposureTime).Value),
-                Aperature = SimplifyRational(img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FNumber).Value),
-                FocalLength = SimplifyRational(img.Metadata.ExifProfile.GetValue<SixLabors.ImageSharp.Rational>(ExifTag.FocalLength).Value)
-            }
+            Camera = new CameraSettings(img.Metadata.ExifProfile)
         };
     }
 
@@ -197,22 +190,6 @@ public class FileClient
         {
             _logger.LogInformation($"Deleting source folder {directory}");
             Directory.Delete(directory);
-        }
-    }
-
-    /// <summary>
-    /// Formats a ImageSharp.Rational into a more viewable string. Changes "3000/10" to "300" and "10/2000" to "1/200"
-    /// </summary>
-    public string SimplifyRational(Rational input)
-    {
-        if (input.Denominator > input.Numerator)
-        {
-            return $"1/{input.Denominator / input.Numerator}";
-        }
-        else
-        {
-            return $"{(float)input.Numerator / (float)input.Denominator}";
-
         }
     }
 }

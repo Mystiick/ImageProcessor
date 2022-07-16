@@ -42,6 +42,7 @@ public class ImageProcessor
 #if DEBUG
                 config.AddJsonFile("appsettings.dev.json", optional: true);
 #endif
+                config.AddEnvironmentVariables();
             })
             .ConfigureLogging(logging =>
             {
