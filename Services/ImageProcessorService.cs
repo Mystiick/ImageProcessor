@@ -78,9 +78,9 @@ public class ImageProcessorService
                 source,
                 new ImageData(source)
                 {
-                    Image = Path.Combine(_config.ArchiveFolder, source.GUID + source.Extension),
-                    Preview = Path.Combine(_config.ArchiveFolder, source.GUID + "_preview" + source.Extension),
-                    Thumbnail = Path.Combine(_config.ArchiveFolder, source.GUID + "_thumb" + source.Extension),
+                    Image = Path.Combine(_config.ArchiveFolder, source.TagData.Category, source.GUID + source.Extension),
+                    Preview = Path.Combine(_config.ArchiveFolder, source.TagData.Category, source.GUID + "_preview" + source.Extension),
+                    Thumbnail = Path.Combine(_config.ArchiveFolder, source.TagData.Category, source.GUID + "_thumb" + source.Extension),
                 }
             ))
             .ToList();
